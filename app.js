@@ -29,6 +29,39 @@ try {
   if (saved) { if (validBackup({...saved,format:'km-backup-v1'})) state = {...saved,templates:saved.templates||[],hiddenTemplates:saved.hiddenTemplates||[]}; else storageError=true; }
 } catch { storageError = true; }
 syncTemplates();
+let refreshInProgress=false;
+function refreshFeedback(message,busy=false,success=false){
+  const button=$('.top-refresh');button.disabled=busy;button.setAttribute('aria-busy',String(busy));
+  $('#refresh-label').textContent=busy?'Frissítés…':success?'Frissítve':'Frissítés';
+  const status=$('#refresh-status');status.textContent=message;status.hidden=!message;
+}
+async function refreshApplication(){
+  if(refreshInProgress)return;
+  if((dirty||templateDirty)&&!confirm('Nem mentett módosításaid vannak. Frissíted az alkalmazást?'))return;
+  if(!navigator.onLine){refreshFeedback('Nincs internetkapcsolat.');toast('Nincs internetkapcsolat. Próbáld újra a frissítést, ha helyreállt a kapcsolat.');return;}
+  refreshInProgress=true;refreshFeedback('Frissítés ellenőrzése…',true);
+  try{
+    const registration=await navigator.serviceWorker?.getRegistration();
+    if(registration){
+      await registration.update();
+      const worker=registration.installing;
+      if(worker)await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('timeout')),15000);const check=()=>{if(worker.state==='installed'){clearTimeout(timeout);resolve();}else if(worker.state==='redundant'){clearTimeout(timeout);reject(new Error('install'));}};worker.addEventListener('statechange',check);check();});
+    }
+    sessionStorage.setItem('km-refresh-complete',String(Date.now()));
+    dirty=false;templateDirty=false;
+    if(registration?.waiting){
+      const waiting=registration.waiting;
+      await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('activation-timeout')),15000);const check=()=>{if(waiting.state==='activated'){clearTimeout(timeout);resolve();}else if(waiting.state==='redundant'){clearTimeout(timeout);reject(new Error('activation'));}};waiting.addEventListener('statechange',check);waiting.postMessage('SKIP_WAITING');check();});
+    }
+    location.reload();
+  }catch{
+    try{sessionStorage.removeItem('km-refresh-complete');}catch{}
+    refreshInProgress=false;refreshFeedback('A frissítés nem sikerült. Próbáld újra.');toast('A frissítést nem sikerült ellenőrizni. Próbáld újra később.');
+  }
+}
+function showRefreshCompletion(){
+  try{const timestamp=Number(sessionStorage.getItem('km-refresh-complete'));sessionStorage.removeItem('km-refresh-complete');if(timestamp&&Date.now()-timestamp<120000){refreshFeedback('✓ Az alkalmazás frissült · 1.6.2',false,true);toast('Az alkalmazás frissítése befejeződött. Betöltött verzió: 1.6.2.');}}catch{}
+}
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('#toast').classList.remove('show'), 5000); }
 function syncTemplates() { templates.splice(0,templates.length,...BASE_TEMPLATES.filter(template=>!state.hiddenTemplates.includes(template.id)),...state.templates); }
 function validHiddenTemplates(value) { return value===undefined || (Array.isArray(value) && value.length<=1000 && value.every(id=>typeof id==='string' && id.length<=100)); }
@@ -47,7 +80,7 @@ function overview() {
   `<section class="hero"><div class="hero-content"><p class="eyebrow">ÖTLETBŐL PONTOS AJÁNLAT</p><h2>Kevesebb számolás.<br>Több megvalósult kert.</h2><p>Indulj egy bevált munkasablonból, add meg a méreteket, és állítsd össze a következő ajánlatodat.</p><a href="#templates" class="btn soft">Munkasablonok felfedezése <span>↗</span></a></div><img class="hero-art" src="./assets/botanical.svg" alt="" width="300" height="350"></section>
   <section class="stats" aria-label="Összesítés"><div class="stat"><div class="stat-label">Folyamatban lévő ajánlatok <span>▤</span></div><div class="stat-value">${active.filter(q => q.status === 'Piszkozat' || q.status === 'Elküldve').length}<small>db</small></div><div class="stat-note">Piszkozatok és elküldött ajánlatok</div></div><div class="stat"><div class="stat-label">Elfogadott ajánlatok értéke <span>↗</span></div><div class="stat-value">${money(active.filter(q => q.status === 'Elfogadva').reduce((sum,q) => sum + total(q).gross,0))}</div><div class="stat-note">Bruttó összeg</div></div><div class="stat"><div class="stat-label">Ügyfelek <span>♧</span></div><div class="stat-value">${state.clients.length}<small>fő</small></div><div class="stat-note">Ezen az eszközön tárolva</div></div></section>
   <div class="columns"><section><div class="section-heading"><h2>Legutóbbi árajánlatok</h2><a class="text-link" href="#quotes">Összes megtekintése →</a></div><div class="panel">${state.quotes.length ? quoteTable(state.quotes.slice(0,4)) : empty('Itt kezdődik a következő kert.','Készítsd el az első árajánlatot néhány egyszerű lépésben.', '<button class="btn" data-action="new-quote">＋ Első árajánlat létrehozása</button>','▤')}</div><div class="tip"><span>✧</span><p><strong>A bevált megoldások újra használhatók.</strong>Mentsd el saját munkasablonjaidat és egységáraidat, hogy a következő ajánlat még gyorsabban elkészüljön.</p></div></section>
-  <section><div class="section-heading"><h2>Indulj egy sablonnal</h2><a class="text-link" href="#templates">Összes →</a></div><div class="panel">${templates.slice(0,3).map(t => `<a href="#new/${encodeURIComponent(t.id)}" class="template-row"><span class="template-icon">${t.icon}</span><span><strong>${escapeHTML(t.name)}</strong><small>${t.items.length} munkatétel · ${t.unit} alapján</small></span><span class="arrow">↗</span></a>`).join('')}</div><p class="hint">A sablonok tételeit és árait minden ajánlatban szabadon alakíthatod.</p><button class="btn top-install" data-action="install">↓ Telepítés az eszközre</button><button class="text-link" data-action="refresh" style="margin-left:15px">⟳ Frissítés</button></section></div>`;
+  <section><div class="section-heading"><h2>Indulj egy sablonnal</h2><a class="text-link" href="#templates">Összes →</a></div><div class="panel">${templates.slice(0,3).map(t => `<a href="#new/${encodeURIComponent(t.id)}" class="template-row"><span class="template-icon">${t.icon}</span><span><strong>${escapeHTML(t.name)}</strong><small>${t.items.length} munkatétel · ${t.unit} alapján</small></span><span class="arrow">↗</span></a>`).join('')}</div><p class="hint">A sablonok tételeit és árait minden ajánlatban szabadon alakíthatod.</p><button class="btn top-install" data-action="install">↓ Telepítés az eszközre</button></section></div>`;
 }
 function quoteTable(quotes) { return `<div class="table-wrap"><table><thead><tr><th>AJÁNLAT / ÜGYFÉL</th><th>ÖSSZEG</th><th>ÁLLAPOT</th><th></th></tr></thead><tbody>${quotes.map(q => `<tr><td class="client-name">${escapeHTML(q.title)}<small>${escapeHTML(clientFor(q)?.name || 'Nincs ügyfél kiválasztva')} · ${escapeHTML(q.created)}</small></td><td>${money(total(q).gross)}</td><td><span class="badge">${escapeHTML(q.status)}</span></td><td><a class="btn small" href="#edit/${encodeURIComponent(q.id)}">Megnyitás</a></td></tr>`).join('')}</tbody></table></div>`; }
 function quotesView() { main.innerHTML = heading('AZ ELSŐ ÖTLETTŐL AZ ELFOGADÁSIG','Árajánlatok','Minden ajánlatod, áttekinthetően.',newButton()) + `<div class="toolbar"><input class="search" id="quote-search" type="search" aria-label="Ajánlat keresése" placeholder="Ajánlat vagy ügyfél keresése…"><select id="quote-filter" aria-label="Állapot szerinti szűrés" style="width:auto"><option value="">Minden állapot</option>${['Piszkozat','Elküldve','Elfogadva','Elutasítva'].map(x => `<option>${x}</option>`).join('')}</select></div><div class="panel" id="quote-results"></div>`; filterQuotes(); }
@@ -316,11 +349,7 @@ document.addEventListener('click', async event => {
   if(action==='save-prices'){const previous={...state.prices};draft.items.filter(i=>i.templateKey&&i.price!==''&&Number(i.price)>=0).forEach(i=>state.prices[i.templateKey]=Number(i.price));if(persist())toast('A sablonok egységárait elmentettük.');else state.prices=previous;}
   if(action==='print'){if(draft.items.some(i=>i.price==='')){toast('A nyomtatáshoz minden tételnél add meg az egységárat.');return;}if(saveQuote()){preparePrint();if(await waitForPrintLogo())window.print();}}
   if(action==='install'){if(window.matchMedia('(display-mode: standalone)').matches){toast('Az alkalmazás már telepítve van.');return;}if(pendingInstall){await pendingInstall.prompt();pendingInstall=null;}else installDialog();}
-  if(action==='refresh'){
-    if((dirty||templateDirty)&&!confirm('Nem mentett módosításaid vannak. Frissíted az alkalmazást?'))return;
-    if(!navigator.onLine){toast('Nincs internetkapcsolat. Próbáld újra a frissítést, ha helyreállt a kapcsolat.');return;}
-    try{const registration=await navigator.serviceWorker?.getRegistration();if(registration){await registration.update();const worker=registration.installing;if(worker)await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('timeout')),15000);worker.addEventListener('statechange',()=>{if(worker.state==='installed'||worker.state==='redundant'){clearTimeout(timeout);resolve();}});});if(registration.waiting){dirty=false;templateDirty=false;registration.waiting.postMessage('SKIP_WAITING');return;}}dirty=false;templateDirty=false;location.reload();}catch{toast('A frissítést nem sikerült ellenőrizni. Próbáld újra később.');}
-  }
+  if(action==='refresh')await refreshApplication();
   if(action==='backup'){const blob=new Blob([JSON.stringify({...state,format:'km-backup-v1'},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`km-mentes-${date()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('A biztonsági mentés letöltése elindult.');}
   if(action==='restore'){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{const file=input.files[0];if(!file)return;if(file.size>5000000)throw new Error();const data=JSON.parse(await file.text());if(!validBackup(data))throw new Error();if(!confirm('A visszaállítás felülírja az ezen az eszközön tárolt ügyfeleket, ajánlatokat és sablonárakat. Folytatod?'))return;const previous=state;state={clients:data.clients,quotes:data.quotes,prices:data.prices,templates:data.templates||[],hiddenTemplates:data.hiddenTemplates||[]};if(!persist()){state=previous;return;}syncTemplates();clientsView();toast('A biztonsági mentést visszaállítottuk.');}catch{toast('A fájl nem érvényes KM-biztonsági mentés.');}};input.click();}
 });
@@ -339,3 +368,5 @@ function connection(){ $('#connection').textContent=navigator.onLine?'Helyi tár
 window.addEventListener('online',connection);window.addEventListener('offline',connection);
 if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>toast('Az offline működés most nem kapcsolható be. Az alkalmazást továbbra is használhatod.'));let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloading){reloading=true;if(!dirty&&!templateDirty)location.reload();else toast('Új verzió érhető el. Mentsd a módosításokat, majd nyomd meg a Frissítés gombot.');}});}
 route();connection();if(storageError)toast('A korábbi helyi adatokat nem sikerült beolvasni. Állítsd vissza a biztonsági mentésedet, ha van.');
+
+showRefreshCompletion();
