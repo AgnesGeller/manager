@@ -99,7 +99,7 @@ Tíz új, m²-, fm- vagy db-alapú kertépítési sablon került a `template-cat
 
 A külső árak piaci referenciaértékek, nem a Díszkertek jóváhagyott díjai. A sablon megmutatja a forrást, a bruttó/nettó alapot, az anyag- és munkadíj-tartalmat és a kizárt munkákat. Az ajánlat megjegyzésébe bekerül a kiválasztott csomag műszaki határa; a másik szolgáltató neve és linkje a belső sablontájékoztatás része. Egyben publikált csomagárat nem bontunk fel kitalált részárakra. A kizárt anyagok és szolgáltatások külön tételként adhatók az ajánlathoz.
 
-A felhasználó által megadott saját, ügyfélnek számlázott munkadíj bruttó 8 500 Ft/fő/nap, napi 7 óra, 08:00–15:00. A Saját munkadíj számítása gomb létszám és napok alapján ad főnap-tételt az ajánlathoz. A nettó árat az ajánlat ÁFA-kulcsából számolja; ÁFA-váltáskor a bruttó napidíjat tartja, amíg az ár kézi módosítása ezt felül nem írja. Munkadíjat már tartalmazó piaci tételeknél külön jelzi a dupla számlálás veszélyét.
+A felhasználó által megadott saját, ügyfélnek számlázott munkadíj bruttó 8 500 Ft/fő/óra, napi 7 óra, 08:00–15:00. A Saját munkadíj számítása gomb létszám és órák alapján ad főóra-tételt az ajánlathoz. A nettó árat az ajánlat ÁFA-kulcsából számolja; ÁFA-váltáskor a bruttó óradíjat tartja, amíg az ár kézi módosítása ezt felül nem írja. Munkadíjat már tartalmazó piaci tételeknél külön jelzi a dupla számlálás veszélyét.
 
 Minden teljes munkasablon törölhető megerősítéssel. A beépített sablonok eltávolítása a `hiddenTemplates` helyi listában marad meg, így újraindítás után sem jelennek vissza. A meglévő saját sablonok, ügyfelek és ajánlatok megmaradnak; a régebbi biztonsági mentések továbbra is beolvashatók. A biztonsági mentés az eltávolított beépített sablonok listáját is tartalmazza.
 
@@ -113,6 +113,10 @@ A tisztán anyagáras sablon külön jelölést kap; nem tartalmaz automatikusan
 
 A listában minden sablon jobb felső külső sarkán egy piros × törlőgomb található, amely egy kattintással megerősítést kér. Kereső szűkíti a mobilon oldalra lapozható listát. Az ajánlatba tetszőleges számú sablon adható; külön lenyitható csoportokban jelennek meg. Új sablon hozzáadása után a csoportok összecsukódnak, és egyszerre egy nyitható ki. A korábbi, csoport nélküli ajánlatok továbbra is szerkeszthetők.
 
-Új ajánlatnál az ÁFA alapértelmezése 0%; a mentett ajánlatok korábbi ÁFA-kulcsa változatlan. A saját csapat munkadíja külön, hangsúlyos blokkban adható hozzá a tételek előtt. A munkadíj 8 500 Ft/fő/nap bruttó, napi 7 óra, 08:00–15:00.
+Új ajánlatnál az ÁFA alapértelmezése 0%; a mentett ajánlatok korábbi ÁFA-kulcsa változatlan. A saját csapat munkadíja külön, hangsúlyos blokkban adható hozzá a tételek előtt. A munkadíj 8 500 Ft/fő/óra bruttó, napi 7 óra, 08:00–15:00.
 
 Bruttó forrástételeknél az ajánlat nettó egységára az aktuális ÁFA-kulcshoz igazodik, és a bruttó forrásdíj 0% ÁFA mellett is megmarad. Az automatikus nettósítás nagyobb pontosságot használ, hogy több munkás és több nap összesítésekor se keletkezzen egész forintos eltérés. A felhasználó kézi árátírása felülírja a bruttó árhoz kötést.
+
+## 1.6.1 · Pontosított munkadíj
+
+A saját munkadíj bruttó 8 500 Ft/fő/óra. A 08:00–15:00 munkanap 7 óra, így 59 500 Ft/fő. A munkadíjablak fejenkénti óraszámmal számol, alapértéke 7 óra. A korábban mentett főnapos tételek változatlanok.
