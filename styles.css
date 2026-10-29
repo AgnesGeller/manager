@@ -816,8 +816,7 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                             display:none}
                                                                                                                                                                                                                                                                                                                                                                                                                                             .form-grid{
                                                                                                                                                                                                                                                                                                                                                                                                                                               grid-template-columns:1fr 1fr}
-                                                                                                                                                                                                                                                                                                                                                                                                                                              @page{
-                                                                                                                                                                                                                                                                                                                                                                                                                                                margin:16mm}
+                                                                                                                                                                                                                                                                                                                                                                                                                                              @page { margin: 0 16mm; }
                                                                                                                                                                                                                                                                                                                                                                                                                                               }
                                                                                                                                                                                                                                                                                                                                                                                                                                               .top-refresh{
                                                                                                                                                                                                                                                                                                                                                                                                                                                 font-size:23px;
@@ -930,3 +929,13 @@
 
 .template-card-actions { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
 .template-card-actions .btn { white-space: normal; text-align: center; }
+
+/* Keep browser-added title and URL outside the printable page area.
+   Clone content padding so long quotes retain space at each page break. */
+@media print {
+  .print-only {
+    padding: 16mm 0;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+}
