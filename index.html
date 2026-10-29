@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#244c3c">
+  <meta name="description" content="Kertépítés Menedzser – árajánlatok, munkasablonok és ügyfelek egy helyen.">
+  <meta property="og:title" content="KM · Kertépítés Menedzser">
+  <meta property="og:description" content="A szép kertek mögött rendezett munka áll. Kertépítési árajánlatok és ügyfelek egy helyen.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://agnesgeller.github.io/manager/">
+  <link rel="canonical" href="https://agnesgeller.github.io/manager/">
+  <meta property="og:image" content="https://agnesgeller.github.io/manager/assets/share.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="KM · Kertépítés Menedzser">
+  <meta name="twitter:description" content="Kertépítési árajánlatok és ügyfelek egy helyen.">
+  <meta name="twitter:image" content="https://agnesgeller.github.io/manager/assets/share.png">
+  <title>KM · Kertépítés Menedzser</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Ugrás a tartalomra</a>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><img src="./assets/icon.svg" width="54" height="54" alt="KM"><span>Kertépítés<small>MENEDZSER</small></span></a>
+    <p class="nav-label">MUNKATERÜLET</p>
+    <nav aria-label="Főmenü">
+      <a href="#overview" data-nav="overview"><span>◫</span> Áttekintés</a>
+      <a href="#quotes" data-nav="quotes"><span>▤</span> Árajánlatok <b id="nav-count">0</b></a>
+      <a href="#templates" data-nav="templates"><span>❧</span> Munkasablonok</a>
+      <a href="#clients" data-nav="clients"><span>♧</span> Ügyfelek</a>
+    </nav>
+    <div class="sidebar-note"><span class="sprout">⚘</span><p>Több idő a kertekre.<br>Kevesebb adminisztráció.</p><span>Minden munka egy helyen.</span></div>
+    <div class="sidebar-bottom"><button class="plain" data-action="install">↓ <span>Alkalmazás telepítése</span></button><button class="plain" data-action="refresh">⟳ <span>Frissítés keresése</span></button><small>KM · 1.0.0</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span class="breadcrumb">Munkaterület <span>/</span> <strong id="breadcrumb">Áttekintés</strong></span><div class="topbar-end"><button class="plain top-refresh" data-action="refresh" aria-label="Alkalmazás frissítése" title="Alkalmazás frissítése">⟳</button><span id="connection" class="connection">Helyi tárolás</span><span class="avatar">KM</span><span class="profile">Saját munkaterület<small>Ezen az eszközön</small></span></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer>Gondosan tervezve. Szépen megvalósítva.<span>KM · Kertépítés Menedzser</span></footer>
+  </div>
+  <dialog id="modal" aria-labelledby="modal-title"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
