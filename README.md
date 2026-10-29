@@ -70,7 +70,7 @@ node --check sw.js
 node --test tests/app.test.mjs
 ```
 
-24 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
+30 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
 
 ## Céges arculat forrása
 
@@ -104,3 +104,15 @@ A felhasználó által megadott saját, ügyfélnek számlázott munkadíj brutt
 Minden teljes munkasablon törölhető megerősítéssel. A beépített sablonok eltávolítása a `hiddenTemplates` helyi listában marad meg, így újraindítás után sem jelennek vissza. A meglévő saját sablonok, ügyfelek és ajánlatok megmaradnak; a régebbi biztonsági mentések továbbra is beolvashatók. A biztonsági mentés az eltávolított beépített sablonok listáját is tartalmazza.
 
 Mobilon a sablonlista oldalra görgethető, lapozógombokkal és lapszámjelzővel. A sablonok részletei korlátozott magasságú kártyán belül görgethetők, így a teljes lista nem növeli több képernyőnyire az oldalt. Asztali nézetben a rács megmarad.
+
+## 1.6.0 · Bővített katalógus és ajánlatcsoportok
+
+További 20, ellenőrzött 2026-os sablon került a katalógusba, így 30 forrásárazott és 3 korábbi alap munkasablon érhető el. Az új anyagtételek forrása a Greenframe 2026. február 1-től érvényes nettó árlistája (https://greenframe.hu/arak); a gödörásás és tervezői szolgáltatások forrása az Árgus Kert 2026-os listája (https://www.argus-kft.hu/tajekoztato-arak). További kivitelezési tételek a korábban ellenőrzött Kerti Éden és Niko Kertép listából származnak.
+
+A tisztán anyagáras sablon külön jelölést kap; nem tartalmaz automatikusan kitalált munkaidőt vagy munkadíjat. A Saját munkadíj hozzáadása funkcióval a tényleges csapat és munkanap számolható hozzá. A láncos árokásás rövid szakaszainál a forrás bruttó 20 000 Ft minimumdíját külön minimumdíj-kiegészítés biztosítja. A gépi tereprendezés legalább 4 munkaórával és ettől független, fix 2 óra kiszállási idővel számol.
+
+A listában minden sablon jobb felső külső sarkán egy piros × törlőgomb található, amely egy kattintással megerősítést kér. Kereső szűkíti a mobilon oldalra lapozható listát. Az ajánlatba tetszőleges számú sablon adható; külön lenyitható csoportokban jelennek meg. Új sablon hozzáadása után a csoportok összecsukódnak, és egyszerre egy nyitható ki. A korábbi, csoport nélküli ajánlatok továbbra is szerkeszthetők.
+
+Új ajánlatnál az ÁFA alapértelmezése 0%; a mentett ajánlatok korábbi ÁFA-kulcsa változatlan. A saját csapat munkadíja külön, hangsúlyos blokkban adható hozzá a tételek előtt. A munkadíj 8 500 Ft/fő/nap bruttó, napi 7 óra, 08:00–15:00.
+
+Bruttó forrástételeknél az ajánlat nettó egységára az aktuális ÁFA-kulcshoz igazodik, és a bruttó forrásdíj 0% ÁFA mellett is megmarad. Az automatikus nettósítás nagyobb pontosságot használ, hogy több munkás és több nap összesítésekor se keletkezzen egész forintos eltérés. A felhasználó kézi árátírása felülírja a bruttó árhoz kötést.

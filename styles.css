@@ -958,3 +958,33 @@
   .template-grid .template-card-actions { width: 100%; flex-shrink: 0; }
   .template-grid .price-reference { flex-shrink: 0; }
 }
+.template-slide { position: relative; min-width: 0; padding: 12px 8px 0; }
+.template-slide[hidden] { display: none; }
+.template-slide > .template-card { height: 100%; }
+.template-delete { position: absolute; top: 0; right: 0; z-index: 2; width: 44px; height: 44px; min-height: 44px; display: grid; place-items: center; padding: 0; border: 1px solid #d6a5a0; border-radius: 50%; background: #fff; color: #bd3b32; font-size: 28px; line-height: 1; box-shadow: 0 2px 7px #24372b12; }
+.template-delete:hover { background: #fff1ee; border-color: #bd3b32; }
+@media (max-width: 700px) {
+  .template-grid > .template-slide { scroll-snap-align: start; }
+  .template-slide > .template-card { min-width: 0; max-height: min(610px,calc(100dvh - 200px)); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
+}
+.labor-callout { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 20px; margin-bottom: 22px; background: #e7f0e2; border-left: 4px solid var(--green); }
+.labor-callout strong, .labor-callout span { display: block; }
+.labor-callout strong { font-size: 17px; color: var(--green); margin-bottom: 7px; }
+.labor-callout span { font-size: 12px; line-height: 1.6; color: #5c7255; }
+.quote-group { border: 1px solid var(--line); border-radius: 4px; background: white; min-width: 0; }
+.quote-group > summary { list-style: none; display: flex; align-items: center; gap: 14px; padding: 17px; cursor: pointer; min-height: 56px; }
+.quote-group > summary::-webkit-details-marker { display: none; }
+.quote-group > summary:after { content: '⌄'; margin-left: auto; font-size: 20px; color: var(--green); }
+.quote-group[open] > summary:after { transform: rotate(180deg); }
+.quote-group > summary strong { font-size: 13px; line-height: 1.5; }
+.quote-group > summary small { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.quote-group-content { border-top: 1px solid var(--line); padding: 18px; display: grid; gap: 15px; }
+.quote-group-content .quote-item:last-child { border-bottom: 0; padding-bottom: 0; }
+@media (max-width: 700px) {
+  .labor-callout { flex-direction: column; align-items: stretch; padding: 18px 15px; }
+  .labor-callout .btn { width: 100%; min-height: 50px; font-size: 13px; }
+  .quote-group > summary { align-items: flex-start; flex-wrap: wrap; gap: 5px 12px; padding: 14px; }
+  .quote-group > summary strong { width: calc(100% - 30px); }
+  .quote-group > summary small { order: 3; width: 100%; }
+  .quote-group-content { padding: 15px 12px; }
+}
