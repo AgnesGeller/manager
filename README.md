@@ -77,3 +77,7 @@ node --test tests/app.test.mjs
 A hivatalos logó az `AgnesGeller/diszkertek-munkalap` projekt `official-logo.png` fájljának változatlan másolata (`assets/diszkertek-logo.png`). A cégadatok a munkalap `index.html` céges láblécéből származnak: Netteszt Kft; adószám: 12437164-2-13; www.diszkertek.hu; 0670 634 9630; info@diszkertek.hu. A forrás nem tartalmazott céges székhelyet vagy bankszámlaszámot, ezért ilyet nem adtunk hozzá. A munkalap repositoryja és az adatbázis változatlan maradt.
 
 Az 1.1.0 kiadás a service worker és az ikonhivatkozások verzióját is frissíti. A már telepített app ikonjának cseréjét az operációs rendszer ütemezheti; a linkelőnézetet a közösségi platform saját gyorsítótára is befolyásolja.
+
+Az 1.2.0 kiadás nagyobb, vastagabb, különálló KM betűket és 16–256 px méreteket tartalmazó Windows ICO-fájlt használ. Külön 32 px favicon és 48 px alkalmazásikon is elérhető. A funkció nélküli profiljelvény és a Saját munkaterület felirat eltávolítva; a helyi/offline tárolás állapotjelzője megmaradt.
+
+Az 1.2.0 megosztási képe nagy, kontrasztos címet és hangsúlyos Díszkertek logót használ, apró kísérőszövegek nélkül. A képfájl új neve (`share-v1.2.0.png`) segíti a képelőnézet frissítését; a korábban elküldött üzenetek előnézete a küldő platform gyorsítótárától is függ.
