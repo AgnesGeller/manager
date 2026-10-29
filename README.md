@@ -70,7 +70,7 @@ node --check sw.js
 node --test tests/app.test.mjs
 ```
 
-11 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
+15 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
 
 ## Céges arculat forrása
 
@@ -81,3 +81,5 @@ Az 1.1.0 kiadás a service worker és az ikonhivatkozások verzióját is friss�
 Az 1.2.0 kiadás nagyobb, vastagabb, különálló KM betűket és 16–256 px méreteket tartalmazó Windows ICO-fájlt használ. Külön 32 px favicon és 48 px alkalmazásikon is elérhető. A funkció nélküli profiljelvény és a Saját munkaterület felirat eltávolítva; a helyi/offline tárolás állapotjelzője megmaradt.
 
 Az 1.2.0 megosztási képe nagy, kontrasztos címet és hangsúlyos Díszkertek logót használ, apró kísérőszövegek nélkül. A képfájl új neve (`share-v1.2.0.png`) segíti a képelőnézet frissítését; a korábban elküldött üzenetek előnézete a küldő platform gyorsítótárától is függ.
+
+Az 1.3.0 kiadásban a Munkasablonok → Új saját sablon felületen ügyfél és ajánlat nélkül hozható létre sablon. Megadható a név, leírás, több tétel, mennyiség, egység és opcionális egységár. A saját sablonok Szerkesztés gombbal módosíthatók. A mentetlen sablonváltoztatásokat a navigáció és a frissítés figyelembe veszi. A tárolási formátum és a korábbi sablonok kompatibilisek maradtak.

@@ -16,6 +16,8 @@ const templates = [
 let state = { clients:[], quotes:[], prices:{}, templates:[] };
 let draft = null;
 let dirty = false;
+let templateDraft = null;
+let templateDirty = false;
 let pendingInstall = null;
 let storageError = false;
 try {
@@ -44,7 +46,7 @@ function overview() {
 function quoteTable(quotes) { return `<div class="table-wrap"><table><thead><tr><th>AJÁNLAT / ÜGYFÉL</th><th>ÖSSZEG</th><th>ÁLLAPOT</th><th></th></tr></thead><tbody>${quotes.map(q => `<tr><td class="client-name">${escapeHTML(q.title)}<small>${escapeHTML(clientFor(q)?.name || 'Nincs ügyfél kiválasztva')} · ${escapeHTML(q.created)}</small></td><td>${money(total(q).gross)}</td><td><span class="badge">${escapeHTML(q.status)}</span></td><td><a class="btn small" href="#edit/${encodeURIComponent(q.id)}">Megnyitás</a></td></tr>`).join('')}</tbody></table></div>`; }
 function quotesView() { main.innerHTML = heading('AZ ELSŐ ÖTLETTŐL AZ ELFOGADÁSIG','Árajánlatok','Minden ajánlatod, áttekinthetően.',newButton()) + `<div class="toolbar"><input class="search" id="quote-search" type="search" aria-label="Ajánlat keresése" placeholder="Ajánlat vagy ügyfél keresése…"><select id="quote-filter" aria-label="Állapot szerinti szűrés" style="width:auto"><option value="">Minden állapot</option>${['Piszkozat','Elküldve','Elfogadva','Elutasítva'].map(x => `<option>${x}</option>`).join('')}</select></div><div class="panel" id="quote-results"></div>`; filterQuotes(); }
 function filterQuotes() { const search = $('#quote-search').value.toLocaleLowerCase('hu'); const status = $('#quote-filter').value; const matches = state.quotes.filter(q => (!status || q.status === status) && `${q.title} ${clientFor(q)?.name || ''}`.toLocaleLowerCase('hu').includes(search)); $('#quote-results').innerHTML = matches.length ? quoteTable(matches) : empty('Még nincs megjeleníthető ajánlat.','Hozz létre egy ajánlatot, vagy módosítsd a keresési feltételeket.',newButton(),'▤'); }
-function templatesView() { main.innerHTML = heading('BEVÁLT MUNKÁK, GYORSABB TERVEZÉS','Munkasablonok','Válassz munkát, add meg a területet, majd pontosítsd a tételeket.') + `<div class="template-grid">${templates.map(t => `<article class="template-card"><span class="template-icon">${t.icon}</span><h2>${escapeHTML(t.name)}</h2><p>${escapeHTML(t.description)}</p><ul>${t.items.map(i => `<li>${escapeHTML(i)}</li>`).join('')}</ul><button class="btn" data-action="use-template" data-id="${escapeHTML(t.id)}">Ajánlat ebből a sablonból ↗</button></article>`).join('')}</div><p class="hint">A területalapú munkadíjak mennyisége a megadott m²-t követi. Anyagszükségletet, rétegvastagságot és veszteséget külön tételként adhatsz hozzá. Az egységárakat te határozod meg.</p>`; }
+function templatesView() { main.innerHTML = heading('BEVÁLT MUNKÁK, GYORSABB TERVEZÉS','Munkasablonok','Válassz munkát, vagy állítsd össze a saját, újra használható munkasablonodat.', '<a href="#template/new" class="btn primary">＋ Új saját sablon</a>') + `<div class="template-grid">${templates.map(t => `<article class="template-card"><span class="template-icon">${t.icon}</span><h2>${escapeHTML(t.name)}</h2><p>${escapeHTML(t.description)}</p><ul>${t.items.map(i => `<li>${escapeHTML(i)}</li>`).join('')}</ul><div class="template-card-actions"><button class="btn" data-action="use-template" data-id="${escapeHTML(t.id)}">Ajánlat ebből a sablonból ↗</button>${t.lines?`<a class="btn" href="#template/${encodeURIComponent(t.id)}">Szerkesztés</a>`:""}</div></article>`).join('')}</div><p class="hint">A területalapú munkadíjak mennyisége a megadott m²-t követi. Anyagszükségletet, rétegvastagságot és veszteséget külön tételként adhatsz hozzá. Az egységárakat te határozod meg.</p>`; }
 function clientsView() { main.innerHTML = heading('MINDEN KERT MÖGÖTT EGY ÜGYFÉL','Ügyfelek','Kapcsolattartási adatok és a hozzájuk tartozó ajánlatok.','<button class="btn primary" data-action="new-client">＋ Új ügyfél</button>') + `<div class="toolbar"><input type="search" class="search" id="client-search" aria-label="Ügyfél keresése" placeholder="Név, e-mail-cím vagy cím keresése…"></div><div id="client-results" class="panel"></div><p class="hint">Az adatok jelenleg csak ebben a böngészőben érhetők el. A közös ügyféllistával való szinkronizálás még nincs bekapcsolva.</p><div class="header-actions"><button class="btn" data-action="backup">↓ Adatok biztonsági mentése</button><button class="btn" data-action="restore">↑ Biztonsági mentés visszaállítása</button></div>`; filterClients(); }
 function filterClients() { const query = $('#client-search').value.toLocaleLowerCase('hu'); const matches = state.clients.filter(c => `${c.name} ${c.email} ${c.address}`.toLocaleLowerCase('hu').includes(query)); $('#client-results').innerHTML = matches.length ? `<div class="table-wrap"><table><thead><tr><th>ÜGYFÉL</th><th>ELÉRHETŐSÉG</th><th>AJÁNLATOK</th><th></th></tr></thead><tbody>${matches.map(c => `<tr><td class="client-name">${escapeHTML(c.name)}<small>${escapeHTML(c.address)}</small></td><td>${escapeHTML(c.email)}<br>${escapeHTML(c.phone)}</td><td>${state.quotes.filter(q => q.clientId === c.id).length} db</td><td><button class="btn small" data-action="edit-client" data-id="${escapeHTML(c.id)}">Szerkesztés</button></td></tr>`).join('')}</tbody></table></div>` : empty('Adj nevet a következő kertnek.','Vedd fel az első ügyfeledet, hogy az ajánlatokat rögtön hozzá kapcsolhasd.','<button class="btn" data-action="new-client">＋ Ügyfél hozzáadása</button>','♧'); }
 function newQuote(templateId) { const template = templates.find(t => t.id === templateId); return {id:uid(), title:template ? template.name : '', clientId:'', created:date(), tax:27, status:'Piszkozat', notes:'', items:template ? templateLines(template,1) : [{id:uid(), name:'',qty:1,unit:'m²',price:''}]}; }
@@ -86,6 +88,64 @@ function templateLines(t, amount) { return (t.lines || t.items.map(name=>({name,
 function validCustomTemplates(list) {
   return list===undefined || (Array.isArray(list) && list.length<=1000 && new Set(list.map(t=>t.id)).size===list.length && list.every(t=>typeof t.id==='string' && t.id.length<=100 && !['lawn','renew','bed'].includes(t.id) && typeof t.name==='string' && t.name.length<=150 && t.icon==='❧' && typeof t.description==='string' && t.description.length<=500 && t.unit==='egyedi' && Array.isArray(t.items) && t.items.every(i=>typeof i==='string' && i.length<=180) && Array.isArray(t.lines) && t.lines.length===t.items.length && t.lines.length>0 && t.lines.length<=500 && t.lines.every(i=>typeof i.name==='string' && i.name.length<=180 && typeof i.unit==='string' && i.unit.length<=20 && Number.isFinite(Number(i.qty)) && Number(i.qty)>0 && Number(i.qty)<=1e8 && (i.price==='' || (Number.isFinite(Number(i.price)) && Number(i.price)>=0 && Number(i.price)<=1e9)))));
 }
+function openTemplateEditor(id) {
+  const existing = state.templates.find(t => t.id === id);
+  if (id !== 'new' && !existing) { location.replace('#templates'); toast('A saját sablon nem található.'); return; }
+  if (!templateDraft || (id !== 'new' && templateDraft.id !== id)) {
+    templateDraft = existing ? structuredClone(existing) : {id:uid(), name:'', description:'', lines:[{name:'',qty:1,unit:'m²',price:''}]};
+    templateDraft.lines = templateDraft.lines.map(line => ({...line,id:uid(),price:existing ? (state.prices[`${existing.id}:${line.name}`] ?? line.price) : line.price}));
+    templateDirty = false;
+  }
+  main.innerHTML = heading('SAJÁT MUNKÁK, SAJÁT TÉTELEK', existing ? 'Saját sablon szerkesztése' : 'Új saját sablon', 'Állítsd össze a gyakran használt munkákat. Ügyféladatokra nincs szükség.', '<a class="btn" href="#templates">← Munkasablonok</a>') + `
+    <form id="custom-template-editor">
+      <section class="form-section"><h2>A sablon adatai</h2><div class="form-grid">
+        <div><label for="template-name">Sablon neve *</label><input id="template-name" data-template-field="name" required maxlength="80" value="${escapeHTML(templateDraft.name)}"></div>
+        <div><label for="template-description">Rövid leírás</label><input id="template-description" data-template-field="description" maxlength="500" value="${escapeHTML(templateDraft.description)}"></div>
+      </div></section>
+      <section class="form-section"><h2>Munkatételek</h2><div id="template-lines" class="items"></div>
+        <button class="btn" type="button" data-action="add-template-line" style="margin-top:18px">＋ Új munkatétel</button>
+        <p class="hint">Az egységárat később is megadhatod. Új ajánlat készítésekor az itt mentett mennyiségek szorzóval módosíthatók.</p>
+      </section>
+      <div class="header-actions"><button class="btn primary" type="submit">✓ Saját sablon mentése</button><a class="btn" href="#templates">Mégse</a><span id="template-save-status" class="save-indicator" role="status"></span></div>
+      <p class="hint">A saját sablonok jelenleg ebben a böngészőben mentődnek, és a biztonsági mentés is tartalmazza őket.</p>
+    </form>`;
+  renderTemplateRows();
+}
+function renderTemplateRows() {
+  $('#template-lines').innerHTML = templateDraft.lines.map((line,index) => `
+    <div class="quote-item" data-template-line="${line.id}">
+      <div><label for="template-line-name-${index}">Tétel megnevezése *</label><input id="template-line-name-${index}" data-template-line-field="name" required maxlength="180" value="${escapeHTML(line.name)}"></div>
+      <div><label for="template-line-qty-${index}">Mennyiség *</label><input id="template-line-qty-${index}" data-template-line-field="qty" required type="number" inputmode="decimal" min="0.01" max="100000000" step="0.01" value="${escapeHTML(line.qty)}"></div>
+      <div><label for="template-line-unit-${index}">Egység *</label><select id="template-line-unit-${index}" data-template-line-field="unit">${['m²','m³','fm','db','óra','alkalom','kg','liter'].map(unit=>`<option ${line.unit===unit?'selected':''}>${unit}</option>`).join('')}</select></div>
+      <div><label for="template-line-price-${index}">Nettó Ft / egység</label><input id="template-line-price-${index}" data-template-line-field="price" type="number" inputmode="decimal" min="0" max="1000000000" step="0.01" placeholder="Nincs ár" value="${escapeHTML(line.price)}"></div>
+      <button class="remove" type="button" data-action="remove-template-line" data-id="${line.id}" aria-label="${index+1}. sablontétel eltávolítása">×</button>
+    </div>`).join('');
+}
+function customTemplateRecord(value) {
+  const name = value.name.trim();
+  const lines = value.lines.map(line => ({name:line.name.trim(),qty:Number(line.qty),unit:line.unit,price:line.price===''?'':Number(line.price)}));
+  if (!name || lines.some(line=>!line.name || !['m²','m³','fm','db','óra','alkalom','kg','liter'].includes(line.unit))) return null;
+  const record = {id:value.id,name,description:value.description.trim(),icon:'❧',unit:'egyedi',items:lines.map(line=>line.name),lines};
+  return validCustomTemplates([record]) ? record : null;
+}
+function storeCustomTemplate(record) {
+  const previousTemplates=state.templates, previousPrices=state.prices;
+  const exists=state.templates.some(t=>t.id===record.id);
+  state.templates=exists?state.templates.map(t=>t.id===record.id?record:t):[...state.templates,record];
+  state.prices={...state.prices};
+  Object.keys(state.prices).filter(key=>key.startsWith(record.id+':')).forEach(key=>delete state.prices[key]);
+  if(!persist()){state.templates=previousTemplates;state.prices=previousPrices;return false;}
+  const index=templates.findIndex(t=>t.id===record.id);
+  if(index<0)templates.push(record);else templates[index]=record;
+  return true;
+}
+function saveTemplateEditor() {
+  if(!$('#custom-template-editor').reportValidity())return;
+  const record=customTemplateRecord(templateDraft);
+  if(!record){toast('Adj meg nevet és legalább egy érvényes munkatételt.');return;}
+  if(!storeCustomTemplate(record))return;
+  templateDirty=false;templateDraft=null;location.hash='templates';toast('A saját munkasablont elmentettük.');
+}
 function saveQuote() { const form = $('#quote-form'); if (!form.reportValidity()) return false; if(!draft.title.trim() || draft.items.some(i=>!i.name.trim())){toast('Az ajánlat és a tételek neve nem maradhat üresen.');return false;} if (!draft.items.length) { toast('Adj hozzá legalább egy munkatételt.'); return false; } if (draft.status !== 'Piszkozat' && draft.items.some(item => item.price === '')) { toast('A végleges ajánlat minden tételéhez adj meg egységárat.'); return false; } const previous = state.quotes; state.quotes = [structuredClone(draft),...state.quotes.filter(q => q.id !== draft.id)]; if (!persist()) { state.quotes=previous; return false; } dirty=false; updateTotals(); $('#save-indicator').textContent='Mentve ezen az eszközön'; $('#nav-count').textContent=state.quotes.length; toast('Az árajánlatot elmentettük ezen az eszközön.'); return true; }
 function clientDialog(id) { const client = state.clients.find(c => c.id === id) || {name:'',email:'',phone:'',address:''}; modal.innerHTML = `<form id="client-form"><h2 id="modal-title">${id?'Ügyfél szerkesztése':'Új ügyfél'}</h2><div class="form-grid"><div class="full"><label for="client-name">Név *</label><input id="client-name" name="name" required maxlength="120" autocomplete="name" value="${escapeHTML(client.name)}"></div><div><label for="client-email">E-mail-cím</label><input id="client-email" name="email" type="email" maxlength="254" autocomplete="email" value="${escapeHTML(client.email)}"></div><div><label for="client-phone">Telefonszám</label><input id="client-phone" name="phone" type="tel" maxlength="40" autocomplete="tel" value="${escapeHTML(client.phone)}"></div><div class="full"><label for="client-address">Munkavégzés címe</label><input id="client-address" name="address" maxlength="250" autocomplete="street-address" value="${escapeHTML(client.address)}"></div></div><p class="hint">Az ügyfél adatai egyelőre csak ezen az eszközön lesznek elérhetők.</p><div class="dialog-actions"><button class="btn" type="button" data-action="close-modal">Mégse</button><button class="btn primary" type="submit">Ügyfél mentése</button></div></form>`; modal.showModal(); $('#client-form').addEventListener('submit', event => { event.preventDefault(); const values = Object.fromEntries(new FormData(event.target)); Object.keys(values).forEach(key => values[key] = values[key].trim()); if (!values.name) { toast('Add meg az ügyfél nevét.'); return; } const previous = state.clients; const record = {...values,id:id || uid()}; state.clients = id ? state.clients.map(c => c.id===id?record:c) : [...state.clients,record]; if (!persist()) {state.clients=previous;return;} modal.close(); if (draft && $('#quote-form')) { draft.clientId=record.id; dirty=true; editor(); } else if (location.hash === '#clients') clientsView(); else overview(); toast('Az ügyfél adatait elmentettük.'); }); }
 function templateDialog(id) { const available = id ? templates.filter(t => t.id === id) : templates; modal.innerHTML = `<form id="template-form"><h2 id="modal-title">Munka hozzáadása sablonból</h2><div><label for="template-choice">Munkasablon</label><select id="template-choice">${available.map(t => `<option value="${escapeHTML(t.id)}">${escapeHTML(t.name)}</option>`).join('')}</select></div><div style="margin-top:18px"><label for="template-area">${available.length===1 && available[0].lines?'Mennyiségi szorzó':'Terület (m²) / saját sablonnál szorzó'} *</label><input id="template-area" type="number" min="0.01" max="100000000" step="0.01" inputmode="decimal" required autofocus></div><p class="hint">A beépített sablonoknál m²-t, saját sablonnál mennyiségi szorzót adj meg (1 = eredeti mennyiségek). Az egységárak később módosíthatók.</p><div class="dialog-actions"><button class="btn" type="button" data-action="close-modal">Mégse</button><button class="btn primary" type="submit">Tételek hozzáadása</button></div></form>`; modal.showModal(); $('#template-form').addEventListener('submit', event => { event.preventDefault(); const t = templates.find(t => t.id === $('#template-choice').value); const area = Number($('#template-area').value); if (!Number.isFinite(area) || area<=0) return; const items = templateLines(t,area); if (!draft || !$('#quote-form')) { draft=newQuote(); draft.title=t.name; draft.items=items; location.hash=`edit/${draft.id}`; } else { if(!draft.title){draft.title=t.name;$('#quote-title').value=t.name;} draft.items = draft.items.filter(i => i.name || i.price !== '').concat(items); renderItems(); } dirty=true; modal.close(); if ($('#quote-form')) updateTotals(); }); }
@@ -93,21 +153,30 @@ function installDialog() { modal.innerHTML = `<h2 id="modal-title">A kertek mell
 let previousHash = location.hash || '#overview';
 function route() {
   const hash = location.hash || '#overview';
+  if(templateDirty && hash!==previousHash && !confirm('A sablon módosításai még nincsenek elmentve. Elhagyod az oldalt?')){history.replaceState(null,'',previousHash);return;}
   if (dirty && draft && hash !== `#edit/${draft.id}` && !confirm('Az ajánlat módosításai még nincsenek elmentve. Elhagyod az oldalt?')) { history.replaceState(null,'',previousHash); return; }
   const [page,id] = hash.slice(1).split('/');
+  if(page!=='template'){templateDraft=null;templateDirty=false;}
   if (page !== 'edit') { draft=null; dirty=false; }
-  const nav = page==='edit'||page==='new'?'quotes':(['overview','quotes','templates','clients'].includes(page)?page:'overview');
+  const nav = page==='template'?'templates':page==='edit'||page==='new'?'quotes':(['overview','quotes','templates','clients'].includes(page)?page:'overview');
   document.querySelectorAll('[data-nav]').forEach(link => { link.classList.toggle('active',link.dataset.nav===nav); if(link.dataset.nav===nav)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current'); });
   $('#breadcrumb').textContent={overview:'Áttekintés',quotes:'Árajánlatok',templates:'Munkasablonok',clients:'Ügyfelek'}[nav];
   $('#nav-count').textContent=state.quotes.length;
   if (page==='edit') { const saved=state.quotes.find(q => q.id===id); if (!draft || draft.id!==id) { if (!saved) { location.replace('#quotes'); toast('Az ajánlat nem található.');return; } draft=structuredClone(saved);dirty=false; } editor(); }
   else if (page==='new') { draft=newQuote(); history.replaceState(null,'',`#edit/${draft.id}`); editor(); if (id)templateDialog(id); }
+  else if(page==='template')openTemplateEditor(id);
   else if (page==='quotes') quotesView(); else if(page==='templates')templatesView(); else if(page==='clients')clientsView(); else overview();
   previousHash=location.hash||'#overview'; window.scrollTo(0,0);
 }
 document.addEventListener('input', event => {
   if (event.target.id==='quote-search')filterQuotes();
   if (event.target.id==='client-search')filterClients();
+  if(templateDraft && event.target.closest('#custom-template-editor')){
+    const field=event.target.dataset.templateField;const lineField=event.target.dataset.templateLineField;
+    if(field)templateDraft[field]=event.target.value;
+    if(lineField){const line=templateDraft.lines.find(line=>line.id===event.target.closest('[data-template-line]').dataset.templateLine);line[lineField]=event.target.value;}
+    templateDirty=true;$('#template-save-status').textContent='Nem mentett módosítások';return;
+  }
   if (!draft || !event.target.closest('#quote-form'))return;
   const field=event.target.dataset.field;
   const itemField=event.target.dataset.itemField;
@@ -116,11 +185,13 @@ document.addEventListener('input', event => {
   updateTotals();
 });
 document.addEventListener('change', event => { if(event.target.id==='quote-filter')filterQuotes(); });
-document.addEventListener('submit', event => { if(event.target.id==='quote-form'){event.preventDefault();saveQuote();} });
+document.addEventListener('submit', event => { if(event.target.id==='custom-template-editor'){event.preventDefault();saveTemplateEditor();return;} if(event.target.id==='quote-form'){event.preventDefault();saveQuote();} });
 document.addEventListener('click', async event => {
   if(event.target.closest('.skip-link')){event.preventDefault();main.focus();return;}
   const button=event.target.closest('[data-action]'); if(!button)return;
   const action=button.dataset.action;
+  if(action==='add-template-line'){templateDraft.lines.push({id:uid(),name:'',qty:1,unit:'db',price:''});templateDirty=true;renderTemplateRows();$('#template-lines .quote-item:last-child input').focus();}
+  if(action==='remove-template-line'){templateDraft.lines=templateDraft.lines.filter(line=>line.id!==button.dataset.id);templateDirty=true;renderTemplateRows();}
   if(action==='save-template')customTemplateDialog();
   if(action==='new-quote')location.hash='new';
   if(action==='use-template')templateDialog(button.dataset.id);
@@ -134,19 +205,19 @@ document.addEventListener('click', async event => {
   if(action==='print'){if(draft.items.some(i=>i.price==='')){toast('A nyomtatáshoz minden tételnél add meg az egységárat.');return;}if(saveQuote()){preparePrint();if(await waitForPrintLogo())window.print();}}
   if(action==='install'){if(window.matchMedia('(display-mode: standalone)').matches){toast('Az alkalmazás már telepítve van.');return;}if(pendingInstall){await pendingInstall.prompt();pendingInstall=null;}else installDialog();}
   if(action==='refresh'){
-    if(dirty&&!confirm('Az ajánlat módosításai még nincsenek elmentve. Frissíted az alkalmazást?'))return;
+    if((dirty||templateDirty)&&!confirm('Nem mentett módosításaid vannak. Frissíted az alkalmazást?'))return;
     if(!navigator.onLine){toast('Nincs internetkapcsolat. Próbáld újra a frissítést, ha helyreállt a kapcsolat.');return;}
-    try{const registration=await navigator.serviceWorker?.getRegistration();if(registration){await registration.update();const worker=registration.installing;if(worker)await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('timeout')),15000);worker.addEventListener('statechange',()=>{if(worker.state==='installed'||worker.state==='redundant'){clearTimeout(timeout);resolve();}});});if(registration.waiting){dirty=false;registration.waiting.postMessage('SKIP_WAITING');return;}}dirty=false;location.reload();}catch{toast('A frissítést nem sikerült ellenőrizni. Próbáld újra később.');}
+    try{const registration=await navigator.serviceWorker?.getRegistration();if(registration){await registration.update();const worker=registration.installing;if(worker)await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('timeout')),15000);worker.addEventListener('statechange',()=>{if(worker.state==='installed'||worker.state==='redundant'){clearTimeout(timeout);resolve();}});});if(registration.waiting){dirty=false;templateDirty=false;registration.waiting.postMessage('SKIP_WAITING');return;}}dirty=false;templateDirty=false;location.reload();}catch{toast('A frissítést nem sikerült ellenőrizni. Próbáld újra később.');}
   }
   if(action==='backup'){const blob=new Blob([JSON.stringify({...state,format:'km-backup-v1'},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`km-mentes-${date()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('A biztonsági mentés letöltése elindult.');}
   if(action==='restore'){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{const file=input.files[0];if(!file)return;if(file.size>5000000)throw new Error();const data=JSON.parse(await file.text());if(!validBackup(data))throw new Error();if(!confirm('A visszaállítás felülírja az ezen az eszközön tárolt ügyfeleket, ajánlatokat és sablonárakat. Folytatod?'))return;const previous=state;state={clients:data.clients,quotes:data.quotes,prices:data.prices,templates:data.templates||[]};if(!persist()){state=previous;return;}templates.splice(3,templates.length-3,...state.templates);clientsView();toast('A biztonsági mentést visszaállítottuk.');}catch{toast('A fájl nem érvényes KM-biztonsági mentés.');}};input.click();}
 });
 function validBackup(data){const text=(v,max=5000)=>typeof v==='string'&&v.length<=max;const number=v=>(typeof v==='number'||typeof v==='string'&&v.trim()!=='')&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=1e12;return data?.format==='km-backup-v1'&&validCustomTemplates(data.templates)&&Array.isArray(data.clients)&&Array.isArray(data.quotes)&&data.clients.length<=10000&&data.quotes.length<=10000&&data.prices&&typeof data.prices==='object'&&!Array.isArray(data.prices)&&Object.values(data.prices).every(number)&&data.clients.every(c=>text(c.id,100)&&text(c.name,120)&&c.name.trim()&&['email','phone','address'].every(k=>text(c[k],254)))&&new Set(data.clients.map(c=>c.id)).size===data.clients.length&&new Set(data.quotes.map(q=>q.id)).size===data.quotes.length&&data.quotes.every(q=>text(q.id,100)&&text(q.title,150)&&text(q.clientId,100)&&text(q.created,10)&&/^\d{4}-\d{2}-\d{2}$/.test(q.created)&&text(q.notes)&&[0,5,18,27].includes(Number(q.tax))&&['Piszkozat','Elküldve','Elfogadva','Elutasítva'].includes(q.status)&&Array.isArray(q.items)&&q.items.length<=500&&q.items.every(i=>text(i.id,100)&&text(i.name,180)&&text(i.unit,20)&&number(i.qty)&&Number(i.qty)>0&&(i.price===''||number(i.price))&&(!i.templateKey||text(i.templateKey,250))));}
 window.addEventListener('hashchange',route);
-window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
+window.addEventListener('beforeunload',event=>{if(dirty||templateDirty){event.preventDefault();event.returnValue='';}});
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();pendingInstall=event;});
 window.addEventListener('appinstalled',()=>{pendingInstall=null;toast('Az alkalmazás telepítése sikerült.');});
 function connection(){ $('#connection').textContent=navigator.onLine?'Helyi tárolás':'Offline · helyi tárolás'; }
 window.addEventListener('online',connection);window.addEventListener('offline',connection);
-if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>toast('Az offline működés most nem kapcsolható be. Az alkalmazást továbbra is használhatod.'));let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloading){reloading=true;if(!dirty)location.reload();else toast('Új verzió érhető el. Mentsd az ajánlatot, majd nyomd meg a Frissítés gombot.');}});}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>toast('Az offline működés most nem kapcsolható be. Az alkalmazást továbbra is használhatod.'));let reloading=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloading){reloading=true;if(!dirty&&!templateDirty)location.reload();else toast('Új verzió érhető el. Mentsd a módosításokat, majd nyomd meg a Frissítés gombot.');}});}
 route();connection();if(storageError)toast('A korábbi helyi adatokat nem sikerült beolvasni. Állítsd vissza a biztonsági mentésedet, ha van.');

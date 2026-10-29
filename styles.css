@@ -927,3 +927,6 @@
   .print-brand > img { object-fit: contain; flex-shrink: 0; }
   .print-company-footer { display: block; }
 }
+
+.template-card-actions { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+.template-card-actions .btn { white-space: normal; text-align: center; }
