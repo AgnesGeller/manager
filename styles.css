@@ -900,7 +900,7 @@
 .sidebar .nav-label { margin-top: 27px; }
 .mobile-company-logo { display: none; flex-shrink: 0; }
 .company-footer { align-items: center; justify-content: flex-start; gap: 20px; border-top: 1px solid var(--line); margin: 0 42px; padding: 23px 0; color: #6d7865; }
-.company-footer > img { flex-shrink: 0; object-fit: contain; }
+.company-footer > img { display: block; width: 66px; height: 73px; flex-shrink: 0; object-fit: contain; }
 .company-footer > div { display: flex; flex-wrap: wrap; gap: 7px 17px; align-items: center; font-size: 11px; line-height: 1.6; }
 .company-footer strong { color: var(--green); }
 .company-footer small { margin-left: auto; max-width: 185px; font-size: 9px; line-height: 1.8; }
@@ -938,4 +938,23 @@
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
+}
+
+.price-reference { border-top: 1px solid var(--line); margin: 0 0 22px; padding-top: 15px; width: 100%; font-size: 11px; line-height: 1.65; }
+.price-reference > strong, .price-reference > span { display: block; margin-bottom: 7px; }
+.price-reference > span { color: var(--muted); }
+.price-reference summary { cursor: pointer; min-height: 38px; padding: 8px 0; color: var(--green); }
+.price-reference details p { margin: 8px 0; font-size: 11px; }
+.price-reference a { color: var(--green); text-decoration: underline; }
+
+.template-scroll-controls { display: none; }
+@media (max-width: 700px) {
+  .template-scroll-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 14px; color: var(--muted); font-size: 10px; }
+  .template-scroll-controls > div { display: flex; gap: 9px; align-items: center; flex-shrink: 0; }
+  .template-scroll-controls .btn { min-height: 44px; min-width: 44px; }
+  .template-scroll-controls .btn:disabled { opacity: .35; cursor: default; }
+  .template-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: calc(100% - 28px); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding: 0 0 14px; scrollbar-width: thin; scrollbar-color: #9aac8e #edf1e7; }
+  .template-grid > .template-card { scroll-snap-align: start; min-width: 0; max-height: min(610px,calc(100dvh - 200px)); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
+  .template-grid .template-card-actions { width: 100%; flex-shrink: 0; }
+  .template-grid .price-reference { flex-shrink: 0; }
 }

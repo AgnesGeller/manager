@@ -58,7 +58,7 @@ node tools/prepare-publication.mjs https://A-JOVAHAGYOTT-TARHELY-CIME/
 
 Ez állítja be az abszolút `og:url`, canonical, `og:image` és Twitter Card képcímeket. A favicon böngészőfülön, az alkalmazásikon telepítéskor, a közösségi előnézeti kép megosztáskor jelenik meg; az előnézet pontos megjelenése a fogadó platformtól és gyorsítótárától is függ.
 
-Az app működéséhez szükséges fájlok: `index.html`, `styles.css`, `app.js`, `sw.js`, `manifest.webmanifest` és az `assets/` könyvtár. A `.nojekyll` fájl a közvetlen statikus kiszolgálást segíti. A `.git`, `tools`, `tests`, `docs` és README nem az app része; semmi érzékenyet és semmilyen helyi adatmentést ne tegyél a publikus repositoryba. Ágból történő GitHub Pages-publikálás a repository egyéb statikus fájljait is elérhetővé teheti.
+Az app működéséhez szükséges fájlok: `index.html`, `styles.css`, `template-catalog.js`, `app.js`, `sw.js`, `manifest.webmanifest` és az `assets/` könyvtár. A `.nojekyll` fájl a közvetlen statikus kiszolgálást segíti. A `.git`, `tools`, `tests`, `docs` és README nem az app része; semmi érzékenyet és semmilyen helyi adatmentést ne tegyél a publikus repositoryba. Ágból történő GitHub Pages-publikálás a repository egyéb statikus fájljait is elérhetővé teheti.
 
 Új kiadásnál emeld a `sw.js` `CACHE` verzióját és a felületen látható verziószámot. A frissítés gomb ellenőrzi az új service workert, és aktiválja, ha elérhető; az ajánlatokat nem törli. A service worker kizárólag a felsorolt alkalmazásfájlokat gyorsítótárazza, későbbi API-válaszokat nem.
 
@@ -70,7 +70,7 @@ node --check sw.js
 node --test tests/app.test.mjs
 ```
 
-15 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
+24 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
 
 ## Céges arculat forrása
 
@@ -85,3 +85,22 @@ Az 1.2.0 megosztási képe nagy, kontrasztos címet és hangsúlyos Díszkertek 
 Az 1.3.0 kiadásban a Munkasablonok → Új saját sablon felületen ügyfél és ajánlat nélkül hozható létre sablon. Megadható a név, leírás, több tétel, mennyiség, egység és opcionális egységár. A saját sablonok Szerkesztés gombbal módosíthatók. A mentetlen sablonváltoztatásokat a navigáció és a frissítés figyelembe veszi. A tárolási formátum és a korábbi sablonok kompatibilisek maradtak.
 
 Az 1.3.1 kiadás a PDF nyomtatásakor elrejti a böngésző által hozzáadott alkalmazáscímet és webcímet: a lap felső és alsó nyomtatási margója nulla, a dokumentum saját belső térköze pedig megtartja a tartalmi margókat. A céges fejléc, ajánlatcím és céges lábléc megmarad. Többoldalas dokumentumnál a belső térköz a lapokra tördeléskor ismétlődik. Forrás: https://developer.chrome.com/blog/print-margins és https://developer.chrome.com/blog/box-decoration-break.
+
+Az 1.3.2 kiadás a lábléc céges logóját az eredeti képből optimalizált PNG-ként, közvetlenül a HTML-be ágyazza. A lábléc megjelenése ezért offline és telepített módban sem függ külön képfájl letöltésétől. Az eredeti hivatalos logó a fejléc és a PDF számára változatlanul megmarad.
+
+Az 1.4.0 kiadásban a saját munkasablonok megerősítés után törölhetők a Munkasablonok oldalon. A törlés a saját sablont és annak mentett sablonárait érinti; az ügyfeleket, meglévő ajánlatokat és beépített sablonokat nem módosítja. Mentési hiba esetén a korábbi állapot megmarad. A kiadás tartalmazza a beágyazott lábléclogó javítását is.
+
+## 1.5.0 · 2026-os sablonok és saját munkadíj
+
+Tíz új, m²-, fm- vagy db-alapú kertépítési sablon került a `template-catalog.js` fájlba. A 2026. október 29-én ellenőrzött források:
+
+- Kerti Éden: https://kertieden.hu/cimkek/kertepites-arak — bruttó indulóárak; a nettó egységárak 27% ÁFA levonásával készültek.
+- Niko Kertép: https://www.gepi-terkovezes.hu/araink/ — 2026 januárjától érvényes nettó kivitelezési munkadíjak, anyag nélkül.
+
+A külső árak piaci referenciaértékek, nem a Díszkertek jóváhagyott díjai. A sablon megmutatja a forrást, a bruttó/nettó alapot, az anyag- és munkadíj-tartalmat és a kizárt munkákat. Az ajánlat megjegyzésébe bekerül a kiválasztott csomag műszaki határa; a másik szolgáltató neve és linkje a belső sablontájékoztatás része. Egyben publikált csomagárat nem bontunk fel kitalált részárakra. A kizárt anyagok és szolgáltatások külön tételként adhatók az ajánlathoz.
+
+A felhasználó által megadott saját, ügyfélnek számlázott munkadíj bruttó 8 500 Ft/fő/nap, napi 7 óra, 08:00–15:00. A Saját munkadíj számítása gomb létszám és napok alapján ad főnap-tételt az ajánlathoz. A nettó árat az ajánlat ÁFA-kulcsából számolja; ÁFA-váltáskor a bruttó napidíjat tartja, amíg az ár kézi módosítása ezt felül nem írja. Munkadíjat már tartalmazó piaci tételeknél külön jelzi a dupla számlálás veszélyét.
+
+Minden teljes munkasablon törölhető megerősítéssel. A beépített sablonok eltávolítása a `hiddenTemplates` helyi listában marad meg, így újraindítás után sem jelennek vissza. A meglévő saját sablonok, ügyfelek és ajánlatok megmaradnak; a régebbi biztonsági mentések továbbra is beolvashatók. A biztonsági mentés az eltávolított beépített sablonok listáját is tartalmazza.
+
+Mobilon a sablonlista oldalra görgethető, lapozógombokkal és lapszámjelzővel. A sablonok részletei korlátozott magasságú kártyán belül görgethetők, így a teljes lista nem növeli több képernyőnyire az oldalt. Asztali nézetben a rács megmarad.
