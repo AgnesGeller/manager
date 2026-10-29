@@ -1,4 +1,4 @@
-# KM · Kertépítés Menedzser
+# Kertépítési Menedzser App · Díszkertek
 
 Magyar nyelvű, reszponzív kertépítési ajánlatkészítő frontend, kizárólag HTML, CSS és vanilla JavaScript használatával. Nincs telepítendő alkalmazásfüggőség és nincs buildlépés.
 
@@ -27,7 +27,9 @@ Alternatíva: tetszőleges statikus HTTP-kiszolgálóval szolgáld ki a projekt 
 - Helyi JSON-biztonsági mentés és ellenőrzött visszaállítás.
 - Nem mentett változások védelme navigáláskor és frissítéskor.
 - PWA-manifeszt, 192/512 px ikon, iOS-ikon, offline alkalmazásváz, telepítési útmutató és frissítés gomb.
-- Zöld növénykoszorúban lila, kézírásos KM monogram, lekerekített négyzetben; saját megosztási kép.
+- Sötét smaragdzöld, élénkzöld növényfüzéres ikon fehér, kézírásos KM monogrammal; betűtípustól független SVG-körvonalak és egyező PNG-ikonok.
+- A munkalap app változtatás nélkül átvett hivatalos Díszkertek logója és cégadatai az alkalmazásban és a nyomtatási nézetben.
+- „Kertépítési Menedzser App” linkelőnézeti cím, Díszkertek megosztási kép és verziózott képcímek.
 
 ## Adatok és jogosultságok
 
@@ -68,4 +70,10 @@ node --check sw.js
 node --test tests/app.test.mjs
 ```
 
-10 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
+11 automatizált ellenőrzés: számítás, hiányzó árak kezelése, mentés és tárhelyhiba, sablonszorzás, HTML-escape, visszaállítás validálása, telepítési fájlok, nyomtatási cégadatok. Böngészős vizsgálat: asztali, 768 px táblagépes, 390 és 320 px mobilnézet; területalapú sablon és élő összesítés. A tényleges telefonos telepítést, az offline indítást és a közösségi linkelőnézetet a deployment után, a végleges HTTPS-címen is ellenőrizni kell.
+
+## Céges arculat forrása
+
+A hivatalos logó az `AgnesGeller/diszkertek-munkalap` projekt `official-logo.png` fájljának változatlan másolata (`assets/diszkertek-logo.png`). A cégadatok a munkalap `index.html` céges láblécéből származnak: Netteszt Kft; adószám: 12437164-2-13; www.diszkertek.hu; 0670 634 9630; info@diszkertek.hu. A forrás nem tartalmazott céges székhelyet vagy bankszámlaszámot, ezért ilyet nem adtunk hozzá. A munkalap repositoryja és az adatbázis változatlan maradt.
+
+Az 1.1.0 kiadás a service worker és az ikonhivatkozások verzióját is frissíti. A már telepített app ikonjának cseréjét az operációs rendszer ütemezheti; a linkelőnézetet a közösségi platform saját gyorsítótára is befolyásolja.

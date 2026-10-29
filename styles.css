@@ -893,3 +893,37 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               .topbar .connection{
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 max-width:75px}
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               }
+/* Díszkertek company identity */
+.company-brand { flex-direction: column; align-items: center; gap: 8px; font-size: 18px; }
+.company-brand img { width: 90px; height: 100px; object-fit: contain; }
+.company-brand > span { text-align: center; }
+.company-brand small { font-size: 8px; letter-spacing: 3px; }
+.sidebar .nav-label { margin-top: 27px; }
+.mobile-company-logo { display: none; flex-shrink: 0; }
+.company-footer { align-items: center; justify-content: flex-start; gap: 20px; border-top: 1px solid var(--line); margin: 0 42px; padding: 23px 0; color: #6d7865; }
+.company-footer > img { flex-shrink: 0; object-fit: contain; }
+.company-footer > div { display: flex; flex-wrap: wrap; gap: 7px 17px; align-items: center; font-size: 11px; line-height: 1.6; }
+.company-footer strong { color: var(--green); }
+.company-footer small { margin-left: auto; max-width: 185px; font-size: 9px; line-height: 1.8; }
+.company-footer a:hover { text-decoration: underline; }
+.print-company { display: grid; gap: 7px; font-size: 12px; }
+.print-company strong { font-size: 20px; }
+.print-document-title { border-top: 1px solid #bcc9b8; padding-top: 24px; margin-bottom: 25px; }
+.print-company-footer { border-top: 1px solid #bcc9b8; padding-top: 14px; margin-top: 35px; color: #52654e; font-size: 10px; line-height: 1.8; text-align: center; break-inside: avoid; }
+@media (max-width: 1100px) { .company-footer { margin: 0 25px; flex-wrap: wrap; } .company-footer small { margin-left: 86px; max-width: none; } }
+@media (max-width: 700px) {
+  .company-brand { display: none; }
+  .mobile-company-logo { display: block; }
+  .topbar { gap: 10px; }
+  .company-footer { margin: 0 18px; gap: 12px; padding: 20px 0; }
+  .company-footer > img { width: 54px; height: 60px; }
+  .company-footer > div { flex: 1; gap: 4px 12px; font-size: 10px; }
+  .company-footer span { display: inline; }
+  .company-footer small { margin: 0; width: 100%; font-size: 8px; }
+}
+@media (max-width: 420px) { .topbar .breadcrumb { display: none; } .topbar-end { margin-left: auto; } }
+@media print {
+  .print-brand { gap: 30px; }
+  .print-brand > img { object-fit: contain; flex-shrink: 0; }
+  .print-company-footer { display: block; }
+}
